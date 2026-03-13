@@ -25,24 +25,29 @@ export function initScene() {
   controls.autoRotate = false;
   controls.enableZoom = true;
   controls.enablePan = false;
-  controls.maxPolarAngle = Math.PI / 2;
+  controls.maxPolarAngle = Math.PI;
   controls.target.set(0, 0, 0);
 
-  const ambientLight = new THREE.AmbientLight(0x404060);
-  const light1 = new THREE.PointLight(0xffcc88, 1.2, 20);
-  light1.position.set(4, 5, 4);
-  const light2 = new THREE.PointLight(0xaaccff, 0.8, 20);
-  light2.position.set(-4, -3, -5);
-  const light3 = new THREE.DirectionalLight(0xffffff, 0.5);
-  light3.position.set(2, 2, 5);
-  const light4 = new THREE.PointLight(0xffffff, 0.4);
-  light4.position.set(-3, 2, 3);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.3);
+  const mainLight = new THREE.DirectionalLight(0xffffff, 0.45);
+  mainLight.position.set(3, 5, 3);
+  mainLight.target.position.set(0, 0, 0);
+  const backLight = new THREE.DirectionalLight(0xffffff, 0.35);
+  backLight.position.set(-2, 3, -4);
+  backLight.target.position.set(0, 0, 0);
+  const leftLight = new THREE.DirectionalLight(0xffffff, 0.3);
+  leftLight.position.set(-4, 2, 2);
+  leftLight.target.position.set(0, 0, 0);
 
   scene.add(ambientLight);
-  scene.add(light1);
-  scene.add(light2);
-  scene.add(light3);
-  scene.add(light4);
+  scene.add(hemiLight);
+  scene.add(mainLight);
+  scene.add(mainLight.target);
+  scene.add(backLight);
+  scene.add(backLight.target);
+  scene.add(leftLight);
+  scene.add(leftLight.target);
 
   const gridHelper = new THREE.GridHelper(8, 20, 0x335588, 0x224466);
   gridHelper.position.y = -1.8;
