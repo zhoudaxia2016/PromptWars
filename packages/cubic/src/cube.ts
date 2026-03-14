@@ -135,6 +135,15 @@ function getRotationParams(face: string): RotationParams | null {
     case 'B':
       angle = modifier === "'" ? -Math.PI / 2 : modifier === '2' ? Math.PI : Math.PI / 2;
       break;
+    case 'M':
+      angle = modifier === "'" ? -Math.PI / 2 : modifier === '2' ? Math.PI : Math.PI / 2;
+      break;
+    case 'E':
+      angle = modifier === "'" ? -Math.PI / 2 : modifier === '2' ? Math.PI : Math.PI / 2;
+      break;
+    case 'S':
+      angle = modifier === "'" ? Math.PI / 2 : modifier === '2' ? Math.PI : -Math.PI / 2;
+      break;
     default:
       return null;
   }
@@ -154,6 +163,12 @@ function getRotationParams(face: string): RotationParams | null {
       return { axis: 'z', fixedVal: 1, angle, duration };
     case 'B':
       return { axis: 'z', fixedVal: -1, angle, duration };
+    case 'M':
+      return { axis: 'x', fixedVal: 0, angle, duration };
+    case 'E':
+      return { axis: 'y', fixedVal: 0, angle, duration };
+    case 'S':
+      return { axis: 'z', fixedVal: 0, angle, duration };
     default:
       return null;
   }

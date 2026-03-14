@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import * as THREE from 'three';
 import {
   initScene,
   createCube,
@@ -67,7 +68,178 @@ export default function CubicPage() {
     };
     window.addEventListener('resize', onResize);
 
+    // Drag-to-rotate: Raycaster + pointer events
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    const worldFaceNormals: Record<string, THREE.Vector3> = {
+      U: new THREE.Vector3(0, 1, 0),
+      D: new THREE.Vector3(0, -1, 0),
+      F: new THREE.Vector3(0, 0, 1),
+      B: new THREE.Vector3(0, 0, -1),
+      R: new THREE.Vector3(1, 0, 0),
+      L: new THREE.Vector3(-1, 0, 0),
+    };
+    const localFaceNormals = [
+      new THREE.Vector3(1, 0, 0),
+      new THREE.Vector3(-1, 0, 0),
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, -1, 0),
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Vector3(0, 0, -1),
+    ];
+    const DRAG_THRESHOLD = 30;
+    let dragState: {
+      face: string;
+      cubePos: THREE.Vector3;
+      startX: number;
+      startY: number;
+      accDx: number;
+      accDy: number;
+    } | null = null;
+
+    function getPointerNDC(e: PointerEvent) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    // 棱块：恰好一个坐标为 0（中间层）
+    function isEdgePiece(pos: THREE.Vector3): boolean {
+      const ax = Math.abs(pos.x) < 0.5;
+      const ay = Math.abs(pos.y) < 0.5;
+      const az = Math.abs(pos.z) < 0.5;
+      return (ax ? 1 : 0) + (ay ? 1 : 0) + (az ? 1 : 0) === 1;
+    }
+
+    // 根据触摸面、拖拽方向、方块位置计算要旋转的面（类似真实魔方：手指按的面不转，推的是相邻层）
+    function getMoveFromDrag(
+      face: string,
+      direction: 'up' | 'down' | 'left' | 'right',
+      cubePos: THREE.Vector3
+    ): string {
+      const { x, y, z } = cubePos;
+      const inFLayer = z > 0.5;
+      const inRLayer = x > 0.5;
+
+      // 棱块：旋转对应中间层 M(x=0) / E(y=0) / S(z=0)
+      if (isEdgePiece(cubePos)) {
+        const cw = direction === 'left' || direction === 'down';
+        if (Math.abs(x) < 0.5) return cw ? 'M' : "M'";
+        if (Math.abs(y) < 0.5) return cw ? "E'" : 'E';
+        return cw ? 'S' : "S'";
+      }
+
+      if (direction === 'left' || direction === 'right') {
+        // 左右拖拽：B/L/D 面旋转本层，其余由 y 决定 U 或 D
+        if (face === 'B') return direction === 'left' ? 'B' : "B'";
+        if (face === 'L') return direction === 'left' ? 'L' : "L'";
+        if (face === 'D') return direction === 'left' ? 'D' : "D'";
+        if (y >= 0) return direction === 'left' ? 'U' : "U'";
+        return direction === 'left' ? "D'" : 'D';
+      }
+      // 上下拖拽：由触摸面和位置决定
+      if (face === 'R' || face === 'L') {
+        if (inFLayer || z >= 0) return direction === 'up' ? "F'" : 'F';
+        return direction === 'up' ? 'B' : "B'";
+      }
+      if (face === 'F' || face === 'B') {
+        if (inRLayer || x >= 0) return direction === 'up' ? 'R' : "R'";
+        return direction === 'up' ? "L'" : 'L';
+      }
+      if (face === 'U') {
+        if (inFLayer || z >= 0) return direction === 'up' ? "F'" : 'F';
+        return direction === 'up' ? 'B' : "B'";
+      }
+      if (face === 'D') {
+        if (inFLayer || z >= 0) return direction === 'up' ? 'F' : "F'";
+        return direction === 'up' ? "B'" : 'B';
+      }
+      return '';
+    }
+
+    function hitToFace(intersect: THREE.Intersection): string | null {
+      const mesh = intersect.object as THREE.Mesh;
+      const faceIndex = intersect.faceIndex ?? 0;
+      const localIdx = Math.min(Math.floor(faceIndex / 2), 5);
+      const localN = localFaceNormals[localIdx].clone();
+      mesh.updateMatrixWorld(true);
+      const worldN = localN.applyQuaternion(mesh.quaternion);
+      let bestFace = '';
+      let bestDot = -2;
+      for (const [face, n] of Object.entries(worldFaceNormals)) {
+        const d = worldN.dot(n);
+        if (d > bestDot) {
+          bestDot = d;
+          bestFace = face;
+        }
+      }
+      return bestDot > 0.9 ? bestFace : null;
+    }
+
+    function onPointerDown(e: PointerEvent) {
+      getPointerNDC(e);
+      raycaster.setFromCamera(pointer, camera);
+      const intersects = raycaster.intersectObjects(cube.cubeGroup.children, true);
+      if (intersects.length > 0) {
+        const face = hitToFace(intersects[0]);
+        const mesh = intersects[0].object as THREE.Mesh;
+        if (face && mesh.position) {
+          e.preventDefault();
+          e.stopPropagation();
+          dragState = {
+            face,
+            cubePos: mesh.position.clone(),
+            startX: e.clientX,
+            startY: e.clientY,
+            accDx: 0,
+            accDy: 0,
+          };
+          controls.enabled = false;
+        }
+      }
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      if (!dragState) return;
+      e.preventDefault();
+      const dx = e.clientX - dragState.startX;
+      const dy = e.clientY - dragState.startY;
+      dragState.accDx += dx;
+      dragState.accDy += dy;
+      dragState.startX = e.clientX;
+      dragState.startY = e.clientY;
+      const { accDx, accDy, face, cubePos } = dragState;
+      let move: string | null = null;
+      if (Math.abs(accDy) > DRAG_THRESHOLD && Math.abs(accDy) >= Math.abs(accDx)) {
+        move = getMoveFromDrag(face, accDy < 0 ? 'up' : 'down', cubePos);
+      } else if (Math.abs(accDx) > DRAG_THRESHOLD && Math.abs(accDx) >= Math.abs(accDy)) {
+        move = getMoveFromDrag(face, accDx < 0 ? 'left' : 'right', cubePos);
+      }
+      if (move) {
+        cube.rotateFace(move);
+        dragState = null;
+        controls.enabled = true;
+      }
+    }
+
+    function onPointerUp() {
+      if (dragState) {
+        dragState = null;
+        controls.enabled = true;
+      }
+    }
+
+    const el = renderer.domElement;
+    el.addEventListener('pointerdown', onPointerDown, { capture: true });
+    el.addEventListener('pointermove', onPointerMove, { capture: true });
+    el.addEventListener('pointerup', onPointerUp, { capture: true });
+    el.addEventListener('pointerleave', onPointerUp, { capture: true });
+
     return () => {
+      el.removeEventListener('pointerdown', onPointerDown, true);
+      el.removeEventListener('pointermove', onPointerMove, true);
+      el.removeEventListener('pointerup', onPointerUp, true);
+      el.removeEventListener('pointerleave', onPointerUp, true);
       window.removeEventListener('resize', onResize);
       cancelAnimationFrame(animRef.current);
       cube.stopAnimation();
