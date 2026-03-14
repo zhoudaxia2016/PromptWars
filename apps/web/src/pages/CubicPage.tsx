@@ -259,6 +259,13 @@ export default function CubicPage() {
 
   const handleRotate = (face: string) => cubeRef.current?.rotateFace(face);
   const handleReset = () => cubeRef.current?.resetCube();
+  const handleResetCamera = () => {
+    const sc = sceneRef.current;
+    if (!sc) return;
+    sc.camera.position.set(5, 4, 6);
+    sc.camera.lookAt(0, 0, 0);
+    sc.controls.target.set(0, 0, 0);
+  };
   const handleGenerateScramble = () => {
     const s = generateScramble(20);
     setScramble(s);
@@ -267,6 +274,12 @@ export default function CubicPage() {
     if (!scramble) return;
     const formula = normalizeFormula(scramble);
     if (formula) cubeRef.current?.queueScramble(formula);
+  };
+  const handleQuickScramble = () => {
+    const s = generateScramble(20);
+    setScramble(s);
+    const formula = normalizeFormula(s);
+    if (formula) cubeRef.current?.applyScrambleInstant(formula);
   };
   const handleExecuteFormula = () => {
     const formula = normalizeFormula(formulaInput);
@@ -329,7 +342,9 @@ export default function CubicPage() {
       <div className="top-panel" style={topPanelStyle}>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="action-btn reset-btn" onClick={handleReset}>🔄 恢复魔方</button>
+          <button className="action-btn" onClick={handleResetCamera}>📷 复位视角</button>
           <button className="action-btn" onClick={handleGenerateScramble}>🎲 生成WCA打乱</button>
+          <button className="action-btn" onClick={handleQuickScramble}>⚡ 快速打乱</button>
           <button className="action-btn" onClick={() => setCfopOpen(true)}>📋 CFOP 公式</button>
         </div>
         <div

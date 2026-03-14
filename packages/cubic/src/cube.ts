@@ -227,6 +227,7 @@ export interface CreateCubeResult {
   rotateFace: (face: string) => void;
   resetCube: () => void;
   queueScramble: (scrambleStr: string) => void;
+  applyScrambleInstant: (scrambleStr: string) => void;
   getStickerState: () => StickerState;
   setBaseRotationDuration: (ms: number) => void;
   stopAnimation: () => void;
@@ -437,11 +438,80 @@ export function createCube(scene: THREE.Scene, options: CreateCubeOptions = {}):
     }
   }
 
+  function applyScrambleInstant(scrambleStr: string): void {
+    if (isAnimating) stopAnimation();
+    animationQueue = [];
+
+    const moves: string[] = [];
+    scrambleStr.split(' ').forEach((move) => {
+      const trimmed = move.trim();
+      if (!trimmed) return;
+      if (trimmed.endsWith('2')) {
+        const base = trimmed.slice(0, -1);
+        moves.push(base, base);
+      } else {
+        moves.push(trimmed);
+      }
+    });
+
+    moves.forEach((face) => {
+      const params = getRotationParams(face);
+      if (!params) return;
+      const { axis, fixedVal, angle } = params;
+      const cubesToRotate = smallCubes.filter((cube) => {
+        const pos = cube.position;
+        if (axis === 'x') return Math.abs(pos.x - fixedVal) < 0.1;
+        if (axis === 'y') return Math.abs(pos.y - fixedVal) < 0.1;
+        if (axis === 'z') return Math.abs(pos.z - fixedVal) < 0.1;
+        return false;
+      });
+      const rotationMatrix = new THREE.Matrix4();
+      if (axis === 'x') rotationMatrix.makeRotationX(angle);
+      else if (axis === 'y') rotationMatrix.makeRotationY(angle);
+      else if (axis === 'z') rotationMatrix.makeRotationZ(angle);
+      cubesToRotate.forEach((cube) => {
+        const startPos = cube.position.clone();
+        const startRot = cube.quaternion.clone();
+        if (axis === 'x') {
+          const y = startPos.y;
+          const z = startPos.z;
+          cube.position.set(
+            startPos.x,
+            y * Math.cos(angle) - z * Math.sin(angle),
+            y * Math.sin(angle) + z * Math.cos(angle)
+          );
+        } else if (axis === 'y') {
+          const x = startPos.x;
+          const z = startPos.z;
+          cube.position.set(
+            x * Math.cos(angle) + z * Math.sin(angle),
+            startPos.y,
+            -x * Math.sin(angle) + z * Math.cos(angle)
+          );
+        } else if (axis === 'z') {
+          const x = startPos.x;
+          const y = startPos.y;
+          cube.position.set(
+            x * Math.cos(angle) - y * Math.sin(angle),
+            x * Math.sin(angle) + y * Math.cos(angle),
+            startPos.z
+          );
+        }
+        const targetRot = startRot
+          .clone()
+          .premultiply(new THREE.Quaternion().setFromRotationMatrix(rotationMatrix));
+        cube.quaternion.copy(targetRot);
+      });
+    });
+    onRotationEnd?.();
+  }
+
   return {
     cubeGroup,
     rotateFace,
     resetCube,
     queueScramble,
+    applyScrambleInstant,
     getStickerState,
     setBaseRotationDuration: (ms: number) => {
       if (typeof ms === 'number' && ms > 0) baseAnimDuration = ms;
