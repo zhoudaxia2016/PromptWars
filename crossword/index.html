@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日语填字游戏</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
+      color: #e8e8e8;
+      padding: 24px;
+    }
+    h1 {
+      text-align: center;
+      color: #e94560;
+      font-size: 28px;
+      margin-bottom: 24px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .grid-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .crossword-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 36px);
+      grid-template-rows: repeat(10, 36px);
+      gap: 2px;
+      background: #2d2d44;
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .cell {
+      width: 36px;
+      height: 36px;
+      background: #1a1a2e;
+      border: 1px solid #3d3d5c;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cell.block {
+      background: #2d2d44;
+      cursor: default;
+      border-color: transparent;
+    }
+    .cell.selected {
+      background: #e94560;
+      border-color: #e94560;
+      box-shadow: 0 0 12px rgba(233,69,96,0.5);
+    }
+    .cell.highlight {
+      background: rgba(233,69,96,0.25);
+    }
+    .cell.correct {
+      color: #4ecca3;
+    }
+    .cell.wrong {
+      color: #e94560;
+    }
+    .clues {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .clue-section h3 {
+      color: #e94560;
+      font-size: 16px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .clue-item {
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .clue-item:hover, .clue-item.active {
+      background: rgba(233,69,96,0.2);
+    }
+    .clue-item .num { color: #e94560; font-weight: 600; margin-right: 8px; }
+    .kana-hint {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+    .controls {
+      text-align: center;
+      margin-top: 24px;
+    }
+    .controls button {
+      padding: 10px 24px;
+      margin: 0 8px;
+      border: none;
+      border-radius: 24px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-check {
+      background: #4ecca3;
+      color: #1a1a2e;
+    }
+    .btn-check:hover { background: #45b892; }
+    .btn-reset {
+      background: rgba(255,255,255,0.15);
+      color: #e8e8e8;
+    }
+    .btn-reset:hover { background: rgba(255,255,255,0.25); }
+    .status {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+      color: #4ecca3;
+    }
+  </style>
+</head>
+<body>
+  <h1>日语填字游戏</h1>
+  <div class="container">
+    <div class="grid-wrap">
+      <div class="crossword-grid" id="grid"></div>
+    </div>
+    <div class="clues">
+      <div class="clue-section">
+        <h3>横向（Across）</h3>
+        <div id="cluesAcross"></div>
+      </div>
+      <div class="clue-section">
+        <h3>纵向（Down）</h3>
+        <div id="cluesDown"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn-check" id="btnCheck">检查答案</button>
+      <button class="btn-reset" id="btnReset">重新开始</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>
