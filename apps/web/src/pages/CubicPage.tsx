@@ -10,6 +10,7 @@ import {
 } from '@promptwars/cubic';
 
 const ROT_SPEED_KEY = 'cube.baseRotationDuration';
+const flipRows = (arr: string[]) => [...arr.slice(6, 9), ...arr.slice(3, 6), ...arr.slice(0, 3)];
 const AI_PROMPT_TEMPLATE = `请根据以下三阶魔方状态，输出还原公式。
 
 魔方状态（54 字符贴纸表示，顺序：U/D/F/B/L/R 面各 9 格，每格字母表示该位置当前颜色，U=黄 D=白 F=红 B=橙 L=蓝 R=绿）：
@@ -126,26 +127,31 @@ export default function CubicPage() {
   return (
     <div style={{ margin: 0, overflow: 'hidden', minHeight: '100vh', background: '#0a0a12' }}>
       <div
-        id="info"
         style={{
           position: 'absolute',
           top: 20,
           left: 20,
-          color: 'rgba(255,255,255,0.8)',
-          background: 'rgba(20,20,30,0.6)',
-          backdropFilter: 'blur(6px)',
-          padding: '8px 18px',
-          borderRadius: 40,
-          fontSize: 14,
-          zIndex: 10,
-          border: '1px solid rgba(255,255,255,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          zIndex: 25,
         }}
       >
-        🎨 <span style={{ color: '#ffd966', fontWeight: 600 }}>标准魔方</span> · 前红 后橙 右绿 左蓝 上黄 下白
-      </div>
-
-      <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 25 }}>
-        <Link to="/" style={{ color: '#aaccff', textDecoration: 'none', fontSize: 14 }}>← 返回</Link>
+        <Link to="/" style={{ color: '#aaccff', textDecoration: 'none', fontSize: 14, flexShrink: 0 }}>← 返回</Link>
+        <div
+          id="info"
+          style={{
+            color: 'rgba(255,255,255,0.8)',
+            background: 'rgba(20,20,30,0.6)',
+            backdropFilter: 'blur(6px)',
+            padding: '8px 18px',
+            borderRadius: 40,
+            fontSize: 14,
+            border: '1px solid rgba(255,255,255,0.15)',
+          }}
+        >
+          🎨 <span style={{ color: '#ffd966', fontWeight: 600 }}>标准魔方</span> · 前红 后橙 右绿 左蓝 上黄 下白
+        </div>
       </div>
 
       <div className="top-panel" style={topPanelStyle}>
@@ -175,67 +181,79 @@ export default function CubicPage() {
         </div>
       </div>
 
-      <div style={instructionStyle}>🖱️ 鼠标拖拽自由视角 | 滚轮缩放 | 点击公式执行打乱</div>
-
       <div ref={containerRef} style={{ width: '100%', height: '100vh' }} />
 
       {stickerState && (
         <div style={stickerPanelStyle}>
-          <div style={{ gridColumn: '1 / -1', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>当前状态</div>
-          <div className="cell cell-u" style={{ ...stickerFaceStyle, gridColumn: 2, gridRow: 2 }}>
-            {(stickerState.U ?? []).map((letter, i) => (
+          <div style={{ gridColumn: '1 / -1', fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 6 }}>当前状态</div>
+          <div className="cell cell-u sticker-face" style={{ ...stickerFaceStyle, gridColumn: 2, gridRow: 2 }}>
+            {flipRows(stickerState.U ?? []).map((letter, i) => (
               <div key={i} className={`sticker ${letter === '?' ? 'u' : letter.toLowerCase()}`} style={stickerStyle} />
             ))}
           </div>
-          <div className="cell cell-l" style={{ ...stickerFaceStyle, gridColumn: 1, gridRow: 3 }}>
+          <div className="cell cell-l sticker-face" style={{ ...stickerFaceStyle, gridColumn: 1, gridRow: 3 }}>
             {(stickerState.L ?? []).map((letter, i) => (
               <div key={i} className={`sticker ${letter === '?' ? 'u' : letter.toLowerCase()}`} style={stickerStyle} />
             ))}
           </div>
-          <div className="cell cell-f" style={{ ...stickerFaceStyle, gridColumn: 2, gridRow: 3 }}>
+          <div className="cell cell-f sticker-face" style={{ ...stickerFaceStyle, gridColumn: 2, gridRow: 3 }}>
             {(stickerState.F ?? []).map((letter, i) => (
               <div key={i} className={`sticker ${letter === '?' ? 'u' : letter.toLowerCase()}`} style={stickerStyle} />
             ))}
           </div>
-          <div className="cell cell-r" style={{ ...stickerFaceStyle, gridColumn: 3, gridRow: 3 }}>
+          <div className="cell cell-r sticker-face" style={{ ...stickerFaceStyle, gridColumn: 3, gridRow: 3 }}>
             {(stickerState.R ?? []).map((letter, i) => (
               <div key={i} className={`sticker ${letter === '?' ? 'u' : letter.toLowerCase()}`} style={stickerStyle} />
             ))}
           </div>
-          <div className="cell cell-b" style={{ ...stickerFaceStyle, gridColumn: 4, gridRow: 3 }}>
+          <div className="cell cell-b sticker-face" style={{ ...stickerFaceStyle, gridColumn: 4, gridRow: 3 }}>
             {(stickerState.B ?? []).map((letter, i) => (
               <div key={i} className={`sticker ${letter === '?' ? 'u' : letter.toLowerCase()}`} style={stickerStyle} />
             ))}
           </div>
-          <div className="cell cell-d" style={{ ...stickerFaceStyle, gridColumn: 2, gridRow: 4 }}>
-            {(stickerState.D ?? []).map((letter, i) => (
+          <div className="cell cell-d sticker-face" style={{ ...stickerFaceStyle, gridColumn: 2, gridRow: 4 }}>
+            {flipRows(stickerState.D ?? []).map((letter, i) => (
               <div key={i} className={`sticker ${letter === '?' ? 'u' : letter.toLowerCase()}`} style={stickerStyle} />
             ))}
           </div>
-          <button className="copy-btn" onClick={copyState54} style={copyBtnStyle}>复制贴纸状态</button>
-          <button className="copy-btn" onClick={copyAIPrompt} style={copyBtnStyle}>复制 AI 还原提示词</button>
+          <button className="copy-btn" onClick={copyState54} style={{ ...copyBtnStyle, marginTop: 6 }}>复制贴纸状态</button>
+          <button className="copy-btn" onClick={copyAIPrompt} style={{ ...copyBtnStyle, marginTop: 2 }}>复制 AI 还原提示词</button>
         </div>
       )}
 
-      <div style={controlPanelStyle}>
-        {(['U', "U'", 'D', "D'", 'L', "L'", 'R', "R'", 'F', "F'", 'B', "B'"] as const).map((face) => (
-          <button key={face} className="control-btn small-btn" data-face={face} onClick={() => handleRotate(face)} style={controlBtnStyle}>
-            {face}
-          </button>
-        ))}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 220 }}>
-          <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
-            单次旋转时间 <span style={{ color: '#ffd966', fontWeight: 600 }}>{rotationSpeed} ms</span>
-          </label>
-          <input
-            type="range"
-            min={100}
-            max={800}
-            step={50}
-            value={rotationSpeed}
-            onChange={(e) => setRotationSpeed(parseInt(e.target.value, 10))}
-            style={{ accentColor: '#ffd966' }}
-          />
+      <div style={{ ...controlPanelStyle, flexDirection: 'row', alignItems: 'center', gap: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {(['U', 'D', 'L', 'R', 'F', 'B'] as const).map((face) => (
+              <button key={face} className="control-btn small-btn" data-face={face} onClick={() => handleRotate(face)} style={controlBtnStyle}>
+                {face}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {(["U'", "D'", "L'", "R'", "F'", "B'"] as const).map((face) => (
+              <button key={face} className="control-btn small-btn" data-face={face} onClick={() => handleRotate(face)} style={controlBtnStyle}>
+                {face}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 220 }}>
+          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, whiteSpace: 'nowrap' }}>🖱️ 鼠标拖拽自由视角 | 滚轮缩放 | 点击公式执行打乱</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
+              单次旋转时间 <span style={{ color: '#ffd966', fontWeight: 600 }}>{rotationSpeed} ms</span>
+            </label>
+            <input
+              type="range"
+              min={100}
+              max={800}
+              step={50}
+              value={rotationSpeed}
+              onChange={(e) => setRotationSpeed(parseInt(e.target.value, 10))}
+              style={{ accentColor: '#ffd966' }}
+            />
+          </div>
         </div>
       </div>
 
@@ -319,16 +337,6 @@ const formulaInputStyle: React.CSSProperties = {
   outline: 'none',
 };
 
-const instructionStyle: React.CSSProperties = {
-  position: 'absolute',
-  bottom: 140,
-  left: '50%',
-  transform: 'translateX(-50%)',
-  color: 'rgba(255,255,255,0.5)',
-  fontSize: 13,
-  zIndex: 15,
-};
-
 const stickerPanelStyle: React.CSSProperties = {
   position: 'absolute',
   bottom: 30,
@@ -336,7 +344,8 @@ const stickerPanelStyle: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'auto auto auto auto',
   gridTemplateRows: 'auto auto auto auto auto',
-  gap: 6,
+  columnGap: 6,
+  rowGap: 0,
   padding: '12px 14px',
   background: 'rgba(20,20,30,0.9)',
   borderRadius: 12,
