@@ -55,10 +55,8 @@ npm run build
 
 ## GitHub Pages 部署
 
-构建时设置 `GITHUB_PAGES=1` 以使用正确 base 路径：
+推送 `main` 分支后，GitHub Actions 会自动构建并部署。
 
-```bash
-GITHUB_PAGES=1 npm run build
-```
+**首次使用：** 在仓库 Settings → Pages → Build and deployment → Source 选择 **GitHub Actions**。
 
-将 `apps/web/dist/` 内容部署到仓库的 gh-pages 分支或 docs 目录。
+**访问地址：** `https://<用户名>.github.io/PromptWars/`

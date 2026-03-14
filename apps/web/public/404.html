@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+  <script type="text/javascript">
+    var path = location.pathname.replace(/^\/PromptWars\/?/, '') || '/';
+    if (path !== '/' && path[0] !== '/') path = '/' + path;
+    location.replace('/PromptWars/' + (path === '/' ? '' : '#' + path));
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
