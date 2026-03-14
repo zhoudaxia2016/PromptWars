@@ -35,6 +35,8 @@ export interface PuzzleWord {
   row: number;
   col: number;
   dir: 'across' | 'down';
+  /** 罗马音，与 answer（假名）同时存在时用于展示 */
+  romanji?: string;
 }
 
 export interface Puzzle {

@@ -20,6 +20,8 @@ build/
 .env.local
 .env.*.local
 
+packages/llm/src/config.json
+
 # Logs
 *.log
 npm-debug.log*

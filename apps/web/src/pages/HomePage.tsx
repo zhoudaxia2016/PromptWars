@@ -123,7 +123,7 @@ const navStyle: React.CSSProperties = {
   width: '100%',
 };
 
-const cardStyle = (accent: string): React.CSSProperties => ({
+const cardStyle = (_accent: string): React.CSSProperties => ({
   display: 'block',
   padding: '24px 28px',
   background: 'rgba(20,20,30,0.8)',

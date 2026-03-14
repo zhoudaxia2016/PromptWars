@@ -9,11 +9,11 @@ promptwars/
 ├── apps/
 │   └── web/          # 主应用 (Vite + React + React Router)
 ├── packages/
-│   ├── shared/       # 共享工具 (callLLM 等)
+│   ├── llm/          # 大模型配置与调用 (callLLM)
 │   ├── cubic/        # 3D 魔方逻辑
 │   └── crossword/    # 日语填字逻辑
 ├── package.json
-└── pnpm-workspace.yaml
+└── package.json
 ```
 
 ## 开发
@@ -49,8 +49,9 @@ npm run build
 - 罗马音输入，平假名显示
 - 点击提示可定位到对应格子
 
-### shared · 共享工具
+### llm · 大模型
 
+- 配置：编辑 `packages/llm/src/config.json`（可参考 config.example.json），apiKey 可用 `${VITE_XXX}` 引用 .env
 - `callLLM`：OpenAI 兼容 API 调用
 
 ## GitHub Pages 部署

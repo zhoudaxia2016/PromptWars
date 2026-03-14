@@ -7,3 +7,24 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* 填字游戏提示列表滚动条 */
+.crossword-clue-list {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(233, 69, 96, 0.5) rgba(255, 255, 255, 0.08);
+}
+.crossword-clue-list::-webkit-scrollbar {
+  width: 6px;
+}
+.crossword-clue-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+}
+.crossword-clue-list::-webkit-scrollbar-thumb {
+  background: rgba(233, 69, 96, 0.4);
+  border-radius: 3px;
+}
+.crossword-clue-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(233, 69, 96, 0.6);
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "baseUrl": "https://api.openai.com/v1",
+    "name": "OpenAI",
+    "apiKey": "${VITE_API_KEY_OPENAI}",
+    "model": "gpt-4o-mini"
+  },
+  {
+    "baseUrl": "https://api.deepseek.com",
+    "name": "DeepSeek",
+    "apiKey": "${VITE_API_KEY_DEEPSEEK}",
+    "model": "deepseek-chat"
+  },
+  {
+    "baseUrl": "https://api.example.com/v1",
+    "name": "本地部署",
+    "apiKey": "${VITE_API_KEY_CUSTOM_1}",
+    "model": "gpt-4o-mini"
+  }
+]
