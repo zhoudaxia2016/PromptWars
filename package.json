@@ -1,4 +1,14 @@
 {
   "name": "promptwars",
-  "type": "module"
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "npm run dev -w @promptwars/web",
+    "build": "npm run build -w @promptwars/shared && npm run build -w @promptwars/cubic && npm run build -w @promptwars/crossword && npm run build -w @promptwars/web",
+    "preview": "npm run preview -w @promptwars/web"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
 }

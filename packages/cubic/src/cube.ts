@@ -7,27 +7,70 @@ const colors = {
   down: 0xffffff,
   front: 0xff4136,
   back: 0xff851b,
-  black: 0x222222
+  black: 0x222222,
 };
 
-// 颜色 hex -> 面字母（用于贴纸状态）
-const hexToFace = {
+const hexToFace: Record<number, string> = {
   [colors.up]: 'U',
   [colors.down]: 'D',
   [colors.left]: 'L',
   [colors.right]: 'R',
   [colors.front]: 'F',
-  [colors.back]: 'B'
+  [colors.back]: 'B',
 };
 
-// 每个面的世界法线 + 该面 9 个格子的世界坐标 [x,y,z]
-const faceNormalsAndPositions = {
-  U: { normal: new THREE.Vector3(0, 1, 0), positions: [[-1,1,1],[0,1,1],[1,1,1], [-1,1,0],[0,1,0],[1,1,0], [-1,1,-1],[0,1,-1],[1,1,-1]] },
-  D: { normal: new THREE.Vector3(0, -1, 0), positions: [[-1,-1,-1],[0,-1,-1],[1,-1,-1], [-1,-1,0],[0,-1,0],[1,-1,0], [-1,-1,1],[0,-1,1],[1,-1,1]] },
-  F: { normal: new THREE.Vector3(0, 0, 1), positions: [[-1,1,1],[0,1,1],[1,1,1], [-1,0,1],[0,0,1],[1,0,1], [-1,-1,1],[0,-1,1],[1,-1,1]] },
-  B: { normal: new THREE.Vector3(0, 0, -1), positions: [[1,1,-1],[0,1,-1],[-1,1,-1], [1,0,-1],[0,0,-1],[-1,0,-1], [1,-1,-1],[0,-1,-1],[-1,-1,-1]] },
-  L: { normal: new THREE.Vector3(-1, 0, 0), positions: [[-1,1,-1],[-1,1,0],[-1,1,1], [-1,0,-1],[-1,0,0],[-1,0,1], [-1,-1,-1],[-1,-1,0],[-1,-1,1]] },
-  R: { normal: new THREE.Vector3(1, 0, 0), positions: [[1,1,1],[1,1,0],[1,1,-1], [1,0,1],[1,0,0],[1,0,-1], [1,-1,1],[1,-1,0],[1,-1,-1]] }
+const faceNormalsAndPositions: Record<
+  string,
+  { normal: THREE.Vector3; positions: [number, number, number][] }
+> = {
+  U: {
+    normal: new THREE.Vector3(0, 1, 0),
+    positions: [
+      [-1, 1, 1], [0, 1, 1], [1, 1, 1],
+      [-1, 1, 0], [0, 1, 0], [1, 1, 0],
+      [-1, 1, -1], [0, 1, -1], [1, 1, -1],
+    ],
+  },
+  D: {
+    normal: new THREE.Vector3(0, -1, 0),
+    positions: [
+      [-1, -1, -1], [0, -1, -1], [1, -1, -1],
+      [-1, -1, 0], [0, -1, 0], [1, -1, 0],
+      [-1, -1, 1], [0, -1, 1], [1, -1, 1],
+    ],
+  },
+  F: {
+    normal: new THREE.Vector3(0, 0, 1),
+    positions: [
+      [-1, 1, 1], [0, 1, 1], [1, 1, 1],
+      [-1, 0, 1], [0, 0, 1], [1, 0, 1],
+      [-1, -1, 1], [0, -1, 1], [1, -1, 1],
+    ],
+  },
+  B: {
+    normal: new THREE.Vector3(0, 0, -1),
+    positions: [
+      [1, 1, -1], [0, 1, -1], [-1, 1, -1],
+      [1, 0, -1], [0, 0, -1], [-1, 0, -1],
+      [1, -1, -1], [0, -1, -1], [-1, -1, -1],
+    ],
+  },
+  L: {
+    normal: new THREE.Vector3(-1, 0, 0),
+    positions: [
+      [-1, 1, -1], [-1, 1, 0], [-1, 1, 1],
+      [-1, 0, -1], [-1, 0, 0], [-1, 0, 1],
+      [-1, -1, -1], [-1, -1, 0], [-1, -1, 1],
+    ],
+  },
+  R: {
+    normal: new THREE.Vector3(1, 0, 0),
+    positions: [
+      [1, 1, 1], [1, 1, 0], [1, 1, -1],
+      [1, 0, 1], [1, 0, 0], [1, 0, -1],
+      [1, -1, 1], [1, -1, 0], [1, -1, -1],
+    ],
+  },
 };
 
 const localFaceNormals = [
@@ -36,20 +79,29 @@ const localFaceNormals = [
   new THREE.Vector3(0, 1, 0),
   new THREE.Vector3(0, -1, 0),
   new THREE.Vector3(0, 0, 1),
-  new THREE.Vector3(0, 0, -1)
+  new THREE.Vector3(0, 0, -1),
 ];
 
 const size = 0.92;
-const smallCubes = [];
-const initialPositions = [];
-const initialQuaternions = [];
+const smallCubes: THREE.Mesh[] = [];
+const initialPositions: THREE.Vector3[] = [];
+const initialQuaternions: THREE.Quaternion[] = [];
 
 let isAnimating = false;
-let animationQueue = [];
+let animationQueue: string[] = [];
 let baseAnimDuration = 150;
-let currentAnimationComplete = null;
+let currentAnimationComplete: (() => void) | null = null;
 
-function getRotationParams(face) {
+export type StickerState = Record<string, string[]>;
+
+interface RotationParams {
+  axis: 'x' | 'y' | 'z';
+  fixedVal: number;
+  angle: number;
+  duration: number;
+}
+
+function getRotationParams(face: string): RotationParams | null {
   let baseFace = face;
   let modifier = '';
   let durationMultiplier = 1;
@@ -63,55 +115,25 @@ function getRotationParams(face) {
     durationMultiplier = 2;
   }
 
-  let angle;
+  let angle: number;
   switch (baseFace) {
     case 'U':
-      angle =
-        modifier === "'"
-          ? Math.PI / 2
-          : modifier === '2'
-            ? Math.PI
-            : -Math.PI / 2;
+      angle = modifier === "'" ? Math.PI / 2 : modifier === '2' ? Math.PI : -Math.PI / 2;
       break;
     case 'D':
-      angle =
-        modifier === "'"
-          ? -Math.PI / 2
-          : modifier === '2'
-            ? Math.PI
-            : Math.PI / 2;
+      angle = modifier === "'" ? -Math.PI / 2 : modifier === '2' ? Math.PI : Math.PI / 2;
       break;
     case 'L':
-      angle =
-        modifier === "'"
-          ? -Math.PI / 2
-          : modifier === '2'
-            ? Math.PI
-            : Math.PI / 2;
+      angle = modifier === "'" ? -Math.PI / 2 : modifier === '2' ? Math.PI : Math.PI / 2;
       break;
     case 'R':
-      angle =
-        modifier === "'"
-          ? Math.PI / 2
-          : modifier === '2'
-            ? Math.PI
-            : -Math.PI / 2;
+      angle = modifier === "'" ? Math.PI / 2 : modifier === '2' ? Math.PI : -Math.PI / 2;
       break;
     case 'F':
-      angle =
-        modifier === "'"
-          ? Math.PI / 2
-          : modifier === '2'
-            ? Math.PI
-            : -Math.PI / 2;
+      angle = modifier === "'" ? Math.PI / 2 : modifier === '2' ? Math.PI : -Math.PI / 2;
       break;
     case 'B':
-      angle =
-        modifier === "'"
-          ? -Math.PI / 2
-          : modifier === '2'
-            ? Math.PI
-            : Math.PI / 2;
+      angle = modifier === "'" ? -Math.PI / 2 : modifier === '2' ? Math.PI : Math.PI / 2;
       break;
     default:
       return null;
@@ -137,8 +159,8 @@ function getRotationParams(face) {
   }
 }
 
-function getStickerState() {
-  const posToCube = new Map();
+export function getStickerState(): StickerState {
+  const posToCube = new Map<string, THREE.Mesh>();
   smallCubes.forEach((cube) => {
     const ix = Math.round(cube.position.x);
     const iy = Math.round(cube.position.y);
@@ -146,7 +168,7 @@ function getStickerState() {
     posToCube.set(`${ix},${iy},${iz}`, cube);
   });
 
-  const state = { U: [], D: [], F: [], B: [], L: [], R: [] };
+  const state: StickerState = { U: [], D: [], F: [], B: [], L: [], R: [] };
   const faceNames = ['U', 'D', 'F', 'B', 'L', 'R'];
 
   faceNames.forEach((faceName) => {
@@ -170,8 +192,10 @@ function getStickerState() {
           bestFaceIndex = i;
         }
       });
-      const mat = Array.isArray(cube.material) ? cube.material[bestFaceIndex] : cube.material;
-      const hex = mat.color.getHex ? mat.color.getHex() : mat.color;
+      const mat = Array.isArray(cube.material)
+        ? (cube.material as THREE.MeshPhongMaterial[])[bestFaceIndex]
+        : (cube.material as THREE.MeshPhongMaterial);
+      const hex = (mat.color as THREE.Color).getHex();
       arr.push(hexToFace[hex] || '?');
     });
   });
@@ -179,38 +203,38 @@ function getStickerState() {
   return state;
 }
 
-export function createCube(scene, options = {}) {
+export interface CreateCubeOptions {
+  onRotationEnd?: () => void;
+}
+
+export interface CreateCubeResult {
+  cubeGroup: THREE.Group;
+  rotateFace: (face: string) => void;
+  resetCube: () => void;
+  queueScramble: (scrambleStr: string) => void;
+  getStickerState: () => StickerState;
+  setBaseRotationDuration: (ms: number) => void;
+  stopAnimation: () => void;
+}
+
+export function createCube(scene: THREE.Scene, options: CreateCubeOptions = {}): CreateCubeResult {
   const { onRotationEnd } = options;
+  smallCubes.length = 0;
+  initialPositions.length = 0;
+  initialQuaternions.length = 0;
+
   const cubeGroup = new THREE.Group();
 
   for (let x = -1; x <= 1; x++) {
     for (let y = -1; y <= 1; y++) {
       for (let z = -1; z <= 1; z++) {
         const materials = [
-          new THREE.MeshPhongMaterial({
-            color: x === 1 ? colors.right : colors.black,
-            shininess: 30
-          }),
-          new THREE.MeshPhongMaterial({
-            color: x === -1 ? colors.left : colors.black,
-            shininess: 30
-          }),
-          new THREE.MeshPhongMaterial({
-            color: y === 1 ? colors.up : colors.black,
-            shininess: 30
-          }),
-          new THREE.MeshPhongMaterial({
-            color: y === -1 ? colors.down : colors.black,
-            shininess: 30
-          }),
-          new THREE.MeshPhongMaterial({
-            color: z === 1 ? colors.front : colors.black,
-            shininess: 30
-          }),
-          new THREE.MeshPhongMaterial({
-            color: z === -1 ? colors.back : colors.black,
-            shininess: 30
-          })
+          new THREE.MeshPhongMaterial({ color: x === 1 ? colors.right : colors.black, shininess: 30 }),
+          new THREE.MeshPhongMaterial({ color: x === -1 ? colors.left : colors.black, shininess: 30 }),
+          new THREE.MeshPhongMaterial({ color: y === 1 ? colors.up : colors.black, shininess: 30 }),
+          new THREE.MeshPhongMaterial({ color: y === -1 ? colors.down : colors.black, shininess: 30 }),
+          new THREE.MeshPhongMaterial({ color: z === 1 ? colors.front : colors.black, shininess: 30 }),
+          new THREE.MeshPhongMaterial({ color: z === -1 ? colors.back : colors.black, shininess: 30 }),
         ];
 
         const geometry = new THREE.BoxGeometry(size, size, size);
@@ -230,7 +254,7 @@ export function createCube(scene, options = {}) {
 
   scene.add(cubeGroup);
 
-  function rotateFace(face) {
+  function rotateFace(face: string): void {
     if (isAnimating) {
       animationQueue.push(face);
       return;
@@ -241,7 +265,7 @@ export function createCube(scene, options = {}) {
 
     const { axis, fixedVal, angle, duration } = params;
 
-    const cubesToRotate = smallCubes.filter(cube => {
+    const cubesToRotate = smallCubes.filter((cube) => {
       const pos = cube.position;
       if (axis === 'x') return Math.abs(pos.x - fixedVal) < 0.1;
       if (axis === 'y') return Math.abs(pos.y - fixedVal) < 0.1;
@@ -254,19 +278,18 @@ export function createCube(scene, options = {}) {
     isAnimating = true;
 
     const startTime = performance.now();
-    const startRotations = cubesToRotate.map(cube => cube.quaternion.clone());
-    const startPositions = cubesToRotate.map(cube => cube.position.clone());
+    const startRotations = cubesToRotate.map((c) => c.quaternion.clone());
+    const startPositions = cubesToRotate.map((c) => c.position.clone());
 
     const rotationMatrix = new THREE.Matrix4();
     if (axis === 'x') rotationMatrix.makeRotationX(angle);
     else if (axis === 'y') rotationMatrix.makeRotationY(angle);
     else if (axis === 'z') rotationMatrix.makeRotationZ(angle);
 
-    function animate() {
+    function animate(): void {
       const now = performance.now();
       const elapsed = now - startTime;
       let progress = Math.min(elapsed / duration, 1);
-
       progress = 1 - Math.pow(1 - progress, 3);
 
       cubesToRotate.forEach((cube, index) => {
@@ -292,13 +315,10 @@ export function createCube(scene, options = {}) {
         }
 
         cube.position.lerpVectors(startPos, targetPos, progress);
-
         const targetRot = startRot
           .clone()
-          .premultiply(
-            new THREE.Quaternion().setFromRotationMatrix(rotationMatrix)
-          );
-        THREE.Quaternion.slerp(startRot, targetRot, cube.quaternion, progress);
+          .premultiply(new THREE.Quaternion().setFromRotationMatrix(rotationMatrix));
+        cube.quaternion.slerpQuaternions(startRot, targetRot, progress);
       });
 
       if (progress < 1) {
@@ -308,7 +328,7 @@ export function createCube(scene, options = {}) {
       }
     }
 
-    function applyComplete(skipQueue) {
+    function applyComplete(skipQueue: boolean): void {
       cubesToRotate.forEach((cube, index) => {
         const startPos = startPositions[index];
         const startRot = startRotations[index];
@@ -341,9 +361,7 @@ export function createCube(scene, options = {}) {
 
         const targetRot = startRot
           .clone()
-          .premultiply(
-            new THREE.Quaternion().setFromRotationMatrix(rotationMatrix)
-          );
+          .premultiply(new THREE.Quaternion().setFromRotationMatrix(rotationMatrix));
         cube.quaternion.copy(targetRot);
       });
 
@@ -353,25 +371,20 @@ export function createCube(scene, options = {}) {
 
       if (!skipQueue && animationQueue.length > 0) {
         const nextFace = animationQueue.shift();
-        setTimeout(() => {
-          rotateFace(nextFace);
-        }, 10);
+        if (nextFace) setTimeout(() => rotateFace(nextFace), 10);
       }
     }
 
     currentAnimationComplete = () => applyComplete(true);
-
     requestAnimationFrame(animate);
   }
 
-  function resetCube() {
+  function resetCube(): void {
     animationQueue = [];
-
     if (isAnimating) {
       setTimeout(resetCube, 100);
       return;
     }
-
     smallCubes.forEach((cube, index) => {
       cube.position.copy(initialPositions[index]);
       cube.quaternion.copy(initialQuaternions[index]);
@@ -379,7 +392,7 @@ export function createCube(scene, options = {}) {
     onRotationEnd?.();
   }
 
-  function stopAnimation() {
+  function stopAnimation(): void {
     animationQueue = [];
     if (currentAnimationComplete) {
       currentAnimationComplete();
@@ -387,18 +400,14 @@ export function createCube(scene, options = {}) {
     isAnimating = false;
   }
 
-  function queueScramble(scrambleStr) {
-    if (isAnimating) {
-      stopAnimation();
-    }
+  function queueScramble(scrambleStr: string): void {
+    if (isAnimating) stopAnimation();
     animationQueue = [];
 
     const moves = scrambleStr.split(' ');
-    moves.forEach(move => {
+    moves.forEach((move) => {
       const trimmed = move.trim();
       if (!trimmed) return;
-
-      // 对带 2 的公式（如 U2）拆成两次 90° 旋转
       if (trimmed.endsWith('2')) {
         const base = trimmed.slice(0, -1);
         animationQueue.push(base, base);
@@ -409,7 +418,7 @@ export function createCube(scene, options = {}) {
 
     if (animationQueue.length > 0) {
       const firstMove = animationQueue.shift();
-      rotateFace(firstMove);
+      if (firstMove) rotateFace(firstMove);
     }
   }
 
@@ -419,11 +428,9 @@ export function createCube(scene, options = {}) {
     resetCube,
     queueScramble,
     getStickerState,
-    setBaseRotationDuration: (ms) => {
-      if (typeof ms === 'number' && ms > 0) {
-        baseAnimDuration = ms;
-      }
-    }
+    setBaseRotationDuration: (ms: number) => {
+      if (typeof ms === 'number' && ms > 0) baseAnimDuration = ms;
+    },
+    stopAnimation,
   };
 }
-

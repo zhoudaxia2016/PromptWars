@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build / output
+dist/
+build/
+*.tsbuildinfo
+
+# Vite
+.vite/
+
+# Cache
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Optional: uncomment if you don't want to share editor config
+# .vscode/

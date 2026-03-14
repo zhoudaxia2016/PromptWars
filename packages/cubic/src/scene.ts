@@ -1,13 +1,21 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-export function initScene() {
+export interface SceneResult {
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  renderer: THREE.WebGLRenderer;
+  controls: OrbitControls;
+  stars: THREE.Points;
+}
+
+export function initScene(container: HTMLElement): SceneResult {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0a0a12);
 
   const camera = new THREE.PerspectiveCamera(
     45,
-    window.innerWidth / window.innerHeight,
+    container.clientWidth / container.clientHeight,
     0.1,
     1000
   );
@@ -15,9 +23,9 @@ export function initScene() {
   camera.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  document.body.appendChild(renderer.domElement);
+  container.appendChild(renderer.domElement);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -51,8 +59,8 @@ export function initScene() {
 
   const gridHelper = new THREE.GridHelper(8, 20, 0x335588, 0x224466);
   gridHelper.position.y = -1.8;
-  gridHelper.material.opacity = 0.2;
-  gridHelper.material.transparent = true;
+  (gridHelper.material as THREE.Material).opacity = 0.2;
+  (gridHelper.material as THREE.Material).transparent = true;
   scene.add(gridHelper);
 
   const starsGeometry = new THREE.BufferGeometry();
@@ -63,26 +71,15 @@ export function initScene() {
     starPositions[i + 1] = (Math.random() - 0.5) * 40;
     starPositions[i + 2] = (Math.random() - 0.5) * 40;
   }
-  starsGeometry.setAttribute(
-    'position',
-    new THREE.BufferAttribute(starPositions, 3)
-  );
+  starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
   const starsMaterial = new THREE.PointsMaterial({
     color: 0x99aacc,
     size: 0.08,
     transparent: true,
-    opacity: 0.5
+    opacity: 0.5,
   });
   const stars = new THREE.Points(starsGeometry, starsMaterial);
   scene.add(stars);
 
-  return {
-    THREE,
-    scene,
-    camera,
-    renderer,
-    controls,
-    stars
-  };
+  return { scene, camera, renderer, controls, stars };
 }
-

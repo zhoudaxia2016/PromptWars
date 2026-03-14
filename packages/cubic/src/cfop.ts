@@ -1,7 +1,12 @@
 /**
- * CFOP 公式库 - OLL / PLL
- * 2-Look OLL (10) + 2-Look PLL (6) + 常用公式
+ * CFOP 公式库 - OLL / PLL / F2L
  */
+export interface CfopItem {
+  id: string;
+  name: string;
+  formula: string;
+}
+
 export const CFOP = {
   OLL: [
     { id: 'O1', name: '十字', formula: "F R U R' U' F'" },
@@ -17,8 +22,8 @@ export const CFOP = {
     { id: 'O11', name: 'L', formula: "F R' F' R U R U' R'" },
     { id: 'O12', name: '鱼', formula: "R U R' U R U2 R'" },
     { id: 'O13', name: '闪电', formula: "R U R' U R U2 R'" },
-    { id: 'O14', name: '双鱼', formula: "R U R' U R U2 R' L' U' L U' L' U2 L" }
-  ],
+    { id: 'O14', name: '双鱼', formula: "R U R' U R U2 R' L' U' L U' L' U2 L" },
+  ] as CfopItem[],
   PLL: [
     { id: 'P1', name: 'Ua', formula: "R U' R U R U R U' R' U' R2" },
     { id: 'P2', name: 'Ub', formula: "R2 U R U R' U' R' U' R' U R'" },
@@ -40,8 +45,8 @@ export const CFOP = {
     { id: 'P18', name: 'Gc', formula: "R2 U' R U' R U R' U R2 D' U R U' R' D" },
     { id: 'P19', name: 'Gd', formula: "R U R' U' D R2 U' R U' R' U R' U R2 D'" },
     { id: 'P20', name: 'Na', formula: "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'" },
-    { id: 'P21', name: 'Nb', formula: "R' U R U' R' F' U' F R U R' F R' F' R U' R" }
-  ],
+    { id: 'P21', name: 'Nb', formula: "R' U R U' R' F' U' F R U R' F R' F' R U' R" },
+  ] as CfopItem[],
   F2L: [
     { id: 'F1', name: '基础1', formula: "R U R'" },
     { id: 'F2', name: '基础2', formula: "U R U' R'" },
@@ -50,6 +55,6 @@ export const CFOP = {
     { id: 'F5', name: '分离', formula: "R U R' U R U' R'" },
     { id: 'F6', name: '隐藏', formula: "U R U2 R' U R U' R'" },
     { id: 'F7', name: '顶对', formula: "R U' R' U2 R U' R'" },
-    { id: 'F8', name: '顶错', formula: "R U R' U R U2 R'" }
-  ]
+    { id: 'F8', name: '顶错', formula: "R U R' U R U2 R'" },
+  ] as CfopItem[],
 };
