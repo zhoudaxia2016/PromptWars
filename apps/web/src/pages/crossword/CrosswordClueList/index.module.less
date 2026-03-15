@@ -1,0 +1,64 @@
+@import '../../../variables.less';
+
+.clue-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.clue-title {
+  color: @color-primary;
+  font-size: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.clue-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(233, 69, 96, 0.5) rgba(255, 255, 255, 0.08);
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(233, 69, 96, 0.4);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(233, 69, 96, 0.6);
+  }
+}
+
+.clue-item {
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+
+  &.current {
+    background: rgba(233, 69, 96, 0.2);
+  }
+}
+
+.clue-id {
+  color: @color-primary;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.clue-answer {
+  font-size: 12px;
+  color: @color-text-muted;
+  margin-top: 4px;
+}

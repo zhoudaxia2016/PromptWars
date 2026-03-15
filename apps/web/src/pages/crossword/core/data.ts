@@ -42,6 +42,10 @@ export interface PuzzleWord {
 export interface Puzzle {
   size: number;
   words: PuzzleWord[];
+  /** 收藏时生成，用于标识和匹配 */
+  id?: string;
+  /** 收藏时间戳 */
+  savedAt?: number;
 }
 
 export const PUZZLE: Puzzle = {

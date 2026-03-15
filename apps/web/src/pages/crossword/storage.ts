@@ -4,12 +4,6 @@ export const VOCAB_STORAGE_KEY = 'crossword-vocab';
 export const FAVORITES_STORAGE_KEY = 'crossword-favorites';
 export const LAST_PUZZLE_STORAGE_KEY = 'crossword-last-puzzle';
 
-export interface SavedPuzzle {
-  id: string;
-  puzzle: Puzzle;
-  savedAt: number;
-}
-
 export function loadLastPuzzle(): {
   puzzle: Puzzle;
   userInput: Record<string, string>;
@@ -57,18 +51,25 @@ export function saveLastPuzzle(
   }
 }
 
-export function loadFavorites(): SavedPuzzle[] {
+export function loadFavorites(): Puzzle[] {
   try {
     const raw = localStorage.getItem(FAVORITES_STORAGE_KEY);
     if (!raw) return [];
-    const parsed = JSON.parse(raw) as SavedPuzzle[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(raw) as unknown[];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item: unknown) => {
+      const i = item as { puzzle?: Puzzle; id?: string; savedAt?: number } & Partial<Puzzle>;
+      if (i.puzzle) {
+        return { ...i.puzzle, id: i.id, savedAt: i.savedAt } as Puzzle;
+      }
+      return i as Puzzle;
+    });
   } catch {
     return [];
   }
 }
 
-export function saveFavoritesToList(list: SavedPuzzle[]): void {
+export function saveFavoritesToList(list: Puzzle[]): void {
   try {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(list));
   } catch {
@@ -98,9 +99,6 @@ export function parseVocabLines(text: string): { r: string; k: string }[] {
     })
     .filter((p) => p.r.length > 0);
 }
-
-export const CLUE_SYSTEM = `你是日语填词游戏出题助手。我会给你多个日语单词（罗马音），请为每个单词写一条简短的日文提示，让玩家能据此猜出该词。
-要求：按我给出的单词顺序，每行只输出一条日文提示，不要编号、不要出现该单词本身或罗马音、不要任何解释。`;
 
 export function formatAnswer(w: PuzzleWord): string {
   if (w.romanji != null && w.romanji !== '' && w.answer !== w.romanji) {

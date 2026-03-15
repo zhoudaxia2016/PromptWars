@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter, BrowserRouter } from 'react-router-dom';
 import App from './App';
-import './index.css';
+import './index.less';
 
 const Router = import.meta.env.BASE_URL === '/PromptWars/' ? HashRouter : BrowserRouter;
 

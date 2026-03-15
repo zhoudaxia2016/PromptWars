@@ -4,6 +4,7 @@ import { CrosswordGrid } from './CrosswordGrid';
 import { CrosswordClueList } from './CrosswordClueList';
 import { CrosswordVocabModal } from './CrosswordVocabModal';
 import { CrosswordFavoritesModal } from './CrosswordFavoritesModal';
+import s from './index.module.less';
 
 export default function CrosswordPage() {
   const {
@@ -41,90 +42,34 @@ export default function CrosswordPage() {
     isCurrentFavorited,
   } = useCrossword();
 
-  const btnStyle = {
-    padding: '8px 16px',
-    background: 'rgba(255,255,255,0.1)',
-    color: '#e8e8e8',
-    border: '1px solid rgba(255,255,255,0.25)',
-    borderRadius: 8,
-    fontSize: 14,
-    cursor: 'pointer' as const,
-  };
-
   return (
     <div
-      style={{
-        height: '100vh',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-        fontFamily: "'Segoe UI', 'Hiragino Sans', sans-serif",
-        color: '#e8e8e8',
-        padding: 24,
-        boxSizing: 'border-box',
-      }}
+      className={s.crossword}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div
-        style={{
-          marginBottom: 16,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexShrink: 0,
-        }}
-      >
-        <Link to="/" style={{ color: '#aaccff', textDecoration: 'none' }}>
+      <div className={s.header}>
+        <Link to="/" className={s.backLink}>
           ← 返回
         </Link>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" onClick={openFavoritesModal} style={btnStyle}>
+        <div className={s.headerActions}>
+          <button type="button" onClick={openFavoritesModal} className={s.btnSecondary}>
             收藏列表
           </button>
           <button
             type="button"
             onClick={() => setVocabModalOpen(true)}
-            style={btnStyle}
+            className={s.btnSecondary}
           >
             录入单词
           </button>
         </div>
       </div>
 
-      <h1
-        style={{
-          textAlign: 'center',
-          color: '#e94560',
-          fontSize: 28,
-          marginBottom: 24,
-          flexShrink: 0,
-        }}
-      >
-        日语填字游戏
-      </h1>
+      <h1 className={s.title}>日语填字游戏</h1>
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          gap: 32,
-          flex: 1,
-          minHeight: 0,
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 12,
-            flexShrink: 0,
-          }}
-        >
+      <div className={s.main}>
+        <div className={s.gridSection}>
           <CrosswordGrid
             grid={grid}
             puzzleSize={puzzle.size}
@@ -135,40 +80,14 @@ export default function CrosswordPage() {
             checkResult={checkResult}
             onSelectCell={selectCell}
           />
-          <div
-            style={{
-              display: 'flex',
-              gap: 8,
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-            }}
-          >
-            <button
-              onClick={checkAnswers}
-              style={{
-                padding: '10px 24px',
-                background: '#4ecca3',
-                color: '#1a1a2e',
-                border: 'none',
-                borderRadius: 24,
-                fontSize: 14,
-                cursor: 'pointer',
-              }}
-            >
+          <div className={s.actions}>
+            <button onClick={checkAnswers} className={s.btnCheck}>
               检查答案
             </button>
             <button
               onClick={handleGenerate}
               disabled={generating}
-              style={{
-                padding: '10px 24px',
-                background: generating ? 'rgba(233,69,96,0.5)' : '#e94560',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 24,
-                fontSize: 14,
-                cursor: generating ? 'not-allowed' : 'pointer',
-              }}
+              className={s.btnGenerate}
             >
               {generating ? '正在生成…' : '重新生成'}
             </button>
@@ -179,36 +98,13 @@ export default function CrosswordPage() {
                   ? () => removeFromFavorites(currentFavoriteId!)
                   : addToFavorites
               }
-              style={{
-                padding: '10px 24px',
-                background: isCurrentFavorited
-                  ? 'rgba(233,69,96,0.25)'
-                  : 'rgba(255,255,255,0.12)',
-                color: '#e8e8e8',
-                border: `1px solid ${
-                  isCurrentFavorited ? 'rgba(233,69,96,0.5)' : 'rgba(255,255,255,0.25)'
-                }`,
-                borderRadius: 24,
-                fontSize: 14,
-                cursor: 'pointer',
-              }}
+              className={`${s.btnFavorite} ${isCurrentFavorited ? s.isFavorited : ''}`}
             >
               {isCurrentFavorited ? '取消收藏' : '收藏'}
             </button>
           </div>
         </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 24,
-            minWidth: 320,
-            maxWidth: 420,
-            flex: 1,
-            minHeight: 0,
-            alignSelf: 'stretch',
-          }}
-        >
+        <div className={s.clueSection}>
           <CrosswordClueList
             words={across}
             title="横向（Across）"
@@ -228,28 +124,11 @@ export default function CrosswordPage() {
         </div>
       </div>
 
-      <div
-        style={{
-          flexShrink: 0,
-          textAlign: 'center',
-          marginTop: 8,
-          fontSize: 14,
-        }}
-      >
-        {status && <span style={{ color: '#4ecca3' }}>{status}</span>}
-        {generating && (
-          <span style={{ color: '#aaccff' }}>正在生成填字…</span>
-        )}
+      <div className={s.statusBar}>
+        {status && <span className={s.statusSuccess}>{status}</span>}
+        {generating && <span className={s.statusLoading}>正在生成填字…</span>}
         {generateError && !vocabModalOpen && (
-          <span
-            style={{
-              color: '#e94560',
-              display: 'block',
-              marginTop: 4,
-            }}
-          >
-            {generateError}
-          </span>
+          <span className={s.statusError}>{generateError}</span>
         )}
       </div>
 

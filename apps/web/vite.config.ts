@@ -4,6 +4,11 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+    },
+  },
   server: {
     proxy: {
       '/api': {

@@ -1,0 +1,152 @@
+@import '../../variables.less';
+
+.crossword {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
+  color: @color-text;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.back-link {
+  color: @color-accent;
+  text-decoration: none;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-secondary {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: @color-text;
+  border: 1px solid @color-border;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.title {
+  text-align: center;
+  color: @color-primary;
+  font-size: 28px;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 32px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.grid-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-check {
+  .btn-primary();
+  background: @color-success;
+  color: @color-bg-dark;
+}
+
+.btn-generate {
+  .btn-primary();
+  background: @color-primary;
+  color: #fff;
+
+  &:disabled {
+    background: rgba(233, 69, 96, 0.5);
+    cursor: not-allowed;
+  }
+}
+
+.btn-favorite {
+  .btn-primary();
+  background: rgba(255, 255, 255, 0.12);
+  color: @color-text;
+  border: 1px solid @color-border;
+
+  &.is-favorited {
+    background: rgba(233, 69, 96, 0.25);
+    border-color: rgba(233, 69, 96, 0.5);
+  }
+}
+
+.clue-section {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  min-width: 280px;
+  max-width: 420px;
+  flex: 1 1 0;
+  min-height: 0;
+  align-self: stretch;
+  overflow: hidden;
+
+  > * {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+.status-bar {
+  flex-shrink: 0;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.status-success {
+  color: @color-success;
+}
+
+.status-loading {
+  color: @color-accent;
+}
+
+.status-error {
+  color: @color-primary;
+  display: block;
+  margin-top: 4px;
+}

@@ -9,7 +9,6 @@ import {
   saveFavoritesToList,
   parseVocabLines,
   formatAnswer,
-  type SavedPuzzle,
 } from './storage';
 import { generatePuzzle } from './generate';
 import { createMoveToNext, createMoveToPrev } from './navigation';
@@ -50,7 +49,7 @@ export function useCrossword() {
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [vocabModalOpen, setVocabModalOpen] = useState(false);
-  const [favoritesList, setFavoritesList] = useState<SavedPuzzle[]>(loadFavorites);
+  const [favoritesList, setFavoritesList] = useState<Puzzle[]>(loadFavorites);
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
   const [vocabInput, setVocabInput] = useState(() => {
     try {
@@ -218,15 +217,16 @@ export function useCrossword() {
   }, [vocabInput]);
 
   const addToFavorites = useCallback(() => {
-    const item: SavedPuzzle = {
+    const item: Puzzle = {
+      size: puzzle.size,
+      words: puzzle.words.map((w) => ({ ...w })),
       id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      puzzle: { size: puzzle.size, words: puzzle.words.map((w) => ({ ...w })) },
       savedAt: Date.now(),
     };
     const next = [item, ...favoritesList];
     setFavoritesList(next);
     saveFavoritesToList(next);
-    setCurrentFavoriteId(item.id);
+    setCurrentFavoriteId(item.id ?? null);
   }, [puzzle, favoritesList]);
 
   const removeFromFavorites = useCallback(
@@ -244,14 +244,14 @@ export function useCrossword() {
     setFavoritesModalOpen(true);
   }, []);
 
-  const loadFavorite = useCallback((item: SavedPuzzle) => {
-    setPuzzle(item.puzzle);
+  const loadFavorite = useCallback((item: Puzzle) => {
+    setPuzzle(item);
     setUserInput({});
     setSelectedCell(null);
     setCurrentWord(null);
     setStatus('');
     setCheckResult(null);
-    setCurrentFavoriteId(item.id);
+    setCurrentFavoriteId(item.id ?? null);
     setFavoritesModalOpen(false);
   }, []);
 
