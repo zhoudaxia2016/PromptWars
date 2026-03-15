@@ -1,0 +1,96 @@
+---
+description: Less/CSS 样式规范
+globs: "**/*.less"
+alwaysApply: false
+---
+
+# 样式规范
+
+## 1. CSS Modules
+
+组件样式使用 `.module.less`，通过 CSS Modules 隔离作用域。
+
+```tsx
+// TSX：import 后通过 s.xxx 引用
+import s from './index.module.less';
+<div className={s.homePage} />
+```
+
+- 每个页面/组件目录包含 `index.tsx` 和 `index.module.less`
+- Vite 已配置 `localsConvention: 'camelCase'`，kebab-case 类名会自动转为驼峰导出
+
+## 2. 类名 kebab-case
+
+Less 中的类名使用 kebab-case，符合 CSS 惯例。
+
+```less
+// ✅ 推荐
+.home-page { }
+
+// ❌ 不推荐
+.homePage { }
+```
+
+## 3. 变量与导入
+
+颜色、间距等从 `variables.less` 导入，保持一致性。
+
+```less
+@import '../../variables.less';  // 根据文件层级调整路径
+
+.cell {
+  background: @color-bg-cell;
+  border: 1px solid @color-border;
+}
+```
+
+## 4. 修饰符与嵌套
+
+状态修饰符使用 `&` 嵌套，嵌套深度不超过 3 层。
+
+```less
+// ✅ 推荐：修饰符用 &
+.cell {
+  &.selected {
+    background: @color-primary;
+  }
+  &.highlighted { }
+}
+
+.btn-favorite {
+  &.is-favorited {
+    background: rgba(233, 69, 96, 0.25);
+  }
+}
+
+// ❌ 不推荐：超过 3 层
+.parent {
+  .child {
+    .grandchild {
+      .great-grandchild { }  // 过深
+    }
+  }
+}
+```
+
+超过 3 层时，拆分为子组件的独立样式文件。
+
+## 5. 避免 !important
+
+尽量通过提高选择器特异性或调整结构覆盖样式，而非 `!important`。
+
+```less
+// ✅ 推荐
+.cell:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+// ❌ 不推荐
+.cell {
+  box-shadow: 0 0 0 2px var(--accent) !important;
+}
+```
+
+仅在覆盖第三方库且无法修改源码时，才考虑 `!important`。
+
+全局样式：`index.less`、`variables.less` 在 `src/` 根目录。
