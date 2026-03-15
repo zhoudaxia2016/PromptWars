@@ -18,7 +18,7 @@ const entries = [
   },
 ];
 
-export default function HomePage() {
+export default function Home() {
   return (
     <div className={s.homePage}>
       <div className={s.bgPattern} aria-hidden />

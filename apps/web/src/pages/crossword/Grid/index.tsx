@@ -1,7 +1,7 @@
 import { ROMA_TO_HIRA, type GridCell } from '../core';
 import s from './index.module.less';
 
-interface CrosswordGridProps {
+interface GridProps {
   grid: (GridCell | null)[][];
   puzzleSize: number;
   cellStartIds: Record<string, number[]>;
@@ -12,7 +12,7 @@ interface CrosswordGridProps {
   onSelectCell: (r: number, c: number) => void;
 }
 
-export function CrosswordGrid({
+export function Grid({
   grid,
   puzzleSize,
   cellStartIds,
@@ -21,10 +21,10 @@ export function CrosswordGrid({
   highlighted,
   checkResult,
   onSelectCell,
-}: CrosswordGridProps) {
+}: GridProps) {
   return (
     <div
-      className={s.crosswordGrid}
+      className={s.grid}
       style={{
         gridTemplateColumns: `repeat(${puzzleSize}, 36px)`,
         gridTemplateRows: `repeat(${puzzleSize}, 36px)`,

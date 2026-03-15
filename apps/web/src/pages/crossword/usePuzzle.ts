@@ -15,7 +15,7 @@ import { createMoveToNext, createMoveToPrev } from './navigation';
 
 export { formatAnswer } from './storage';
 
-export function useCrossword() {
+export function usePuzzle() {
   const last = useMemo(loadLastPuzzle, []);
   const [puzzle, setPuzzle] = useState<Puzzle>(() => last?.puzzle ?? PUZZLE);
   const { grid, cellWords } = useMemo(() => buildGrid(puzzle), [puzzle]);

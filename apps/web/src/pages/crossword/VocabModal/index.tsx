@@ -1,7 +1,7 @@
 import { parseVocabLines } from '../storage';
 import s from './index.module.less';
 
-interface CrosswordVocabModalProps {
+interface VocabModalProps {
   open: boolean;
   onClose: () => void;
   vocabInput: string;
@@ -9,13 +9,13 @@ interface CrosswordVocabModalProps {
   onSave: () => void;
 }
 
-export function CrosswordVocabModal({
+export function VocabModal({
   open,
   onClose,
   vocabInput,
   onVocabInputChange,
   onSave,
-}: CrosswordVocabModalProps) {
+}: VocabModalProps) {
   if (!open) return null;
 
   const vocabPairs = parseVocabLines(vocabInput);

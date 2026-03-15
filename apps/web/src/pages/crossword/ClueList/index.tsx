@@ -1,7 +1,7 @@
 import type { Puzzle } from '../core';
 import s from './index.module.less';
 
-interface CrosswordClueListProps {
+interface ClueListProps {
   words: Puzzle['words'];
   title: string;
   currentWord: { word: Puzzle['words'][0]; index: number } | null;
@@ -10,14 +10,14 @@ interface CrosswordClueListProps {
   onSelectCell: (r: number, c: number) => void;
 }
 
-export function CrosswordClueList({
+export function ClueList({
   words,
   title,
   currentWord,
   checkResult,
   formatAnswer,
   onSelectCell,
-}: CrosswordClueListProps) {
+}: ClueListProps) {
   return (
     <div className={s.clueList}>
       <h3 className={s.clueTitle}>{title}</h3>

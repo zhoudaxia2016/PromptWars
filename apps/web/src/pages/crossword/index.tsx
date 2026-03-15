@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
-import { useCrossword } from './useCrossword';
-import { CrosswordGrid } from './CrosswordGrid';
-import { CrosswordClueList } from './CrosswordClueList';
-import { CrosswordVocabModal } from './CrosswordVocabModal';
-import { CrosswordFavoritesModal } from './CrosswordFavoritesModal';
+import { usePuzzle } from './usePuzzle';
+import { Grid } from './Grid';
+import { ClueList } from './ClueList';
+import { VocabModal } from './VocabModal';
+import { FavoritesModal } from './FavoritesModal';
 import s from './index.module.less';
 
-export default function CrosswordPage() {
+export default function Page() {
   const {
     puzzle,
     grid,
@@ -40,7 +40,7 @@ export default function CrosswordPage() {
     loadFavorite,
     handleGenerate,
     isCurrentFavorited,
-  } = useCrossword();
+  } = usePuzzle();
 
   return (
     <div
@@ -70,7 +70,7 @@ export default function CrosswordPage() {
 
       <div className={s.main}>
         <div className={s.gridSection}>
-          <CrosswordGrid
+          <Grid
             grid={grid}
             puzzleSize={puzzle.size}
             cellStartIds={cellStartIds}
@@ -105,7 +105,7 @@ export default function CrosswordPage() {
           </div>
         </div>
         <div className={s.clueSection}>
-          <CrosswordClueList
+          <ClueList
             words={across}
             title="横向（Across）"
             currentWord={currentWord}
@@ -113,7 +113,7 @@ export default function CrosswordPage() {
             formatAnswer={formatAnswer}
             onSelectCell={selectCell}
           />
-          <CrosswordClueList
+          <ClueList
             words={down}
             title="纵向（Down）"
             currentWord={currentWord}
@@ -132,7 +132,7 @@ export default function CrosswordPage() {
         )}
       </div>
 
-      <CrosswordVocabModal
+      <VocabModal
         open={vocabModalOpen}
         onClose={() => setVocabModalOpen(false)}
         vocabInput={vocabInput}
@@ -140,7 +140,7 @@ export default function CrosswordPage() {
         onSave={saveVocab}
       />
 
-      <CrosswordFavoritesModal
+      <FavoritesModal
         open={favoritesModalOpen}
         onClose={() => setFavoritesModalOpen(false)}
         favoritesList={favoritesList}

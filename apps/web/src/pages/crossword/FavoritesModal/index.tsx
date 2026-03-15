@@ -1,7 +1,7 @@
 import type { Puzzle } from '../core';
 import s from './index.module.less';
 
-interface CrosswordFavoritesModalProps {
+interface FavoritesModalProps {
   open: boolean;
   onClose: () => void;
   favoritesList: Puzzle[];
@@ -9,13 +9,13 @@ interface CrosswordFavoritesModalProps {
   onRemove: (id: string) => void;
 }
 
-export function CrosswordFavoritesModal({
+export function FavoritesModal({
   open,
   onClose,
   favoritesList,
   onLoad,
   onRemove,
-}: CrosswordFavoritesModalProps) {
+}: FavoritesModalProps) {
   if (!open) return null;
 
   return (
