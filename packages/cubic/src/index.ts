@@ -6,3 +6,4 @@ export { generateScramble } from './scramble';
 export { CFOP } from './cfop';
 export type { CfopItem } from './cfop';
 export { normalizeFormula } from './normalizeFormula';
+export { invertMove } from './invertMove';

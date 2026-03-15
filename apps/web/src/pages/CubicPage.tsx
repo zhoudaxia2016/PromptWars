@@ -6,6 +6,7 @@ import {
   createCube,
   generateScramble,
   normalizeFormula,
+  invertMove,
   CFOP,
   type StickerState,
 } from '@promptwars/cubic';
@@ -33,6 +34,9 @@ export default function CubicPage() {
   });
   const [cfopOpen, setCfopOpen] = useState(false);
   const [cfopTab, setCfopTab] = useState<'OLL' | 'PLL' | 'F2L'>('OLL');
+  const moveHistoryRef = useRef<string[]>([]);
+  const skipNextMoveRef = useRef(false);
+  const [moveCount, setMoveCount] = useState(0);
 
   const updateStickerPanel = useCallback(() => {
     if (cubeRef.current) {
@@ -47,7 +51,17 @@ export default function CubicPage() {
     const { scene, camera, renderer, controls, stars } = initScene(container);
     sceneRef.current = { scene, camera, renderer, controls, stars };
 
-    const cube = createCube(scene, { onRotationEnd: updateStickerPanel });
+    const cube = createCube(scene, {
+      onRotationEnd: updateStickerPanel,
+      onMoveExecuted: (move) => {
+        if (skipNextMoveRef.current) {
+          skipNextMoveRef.current = false;
+          return;
+        }
+        moveHistoryRef.current.push(move);
+        setMoveCount((c) => c + 1);
+      },
+    });
     cubeRef.current = cube;
     cube.setBaseRotationDuration(rotationSpeed);
     updateStickerPanel();
@@ -258,7 +272,18 @@ export default function CubicPage() {
   }, [rotationSpeed]);
 
   const handleRotate = (face: string) => cubeRef.current?.rotateFace(face);
-  const handleReset = () => cubeRef.current?.resetCube();
+  const handleReset = () => {
+    cubeRef.current?.resetCube();
+    moveHistoryRef.current = [];
+    setMoveCount(0);
+  };
+  const handleUndo = () => {
+    const last = moveHistoryRef.current.pop();
+    if (!last || !cubeRef.current) return;
+    setMoveCount((c) => Math.max(0, c - 1));
+    skipNextMoveRef.current = true;
+    cubeRef.current.rotateFace(invertMove(last));
+  };
   const handleResetCamera = () => {
     const sc = sceneRef.current;
     if (!sc) return;
@@ -342,6 +367,7 @@ export default function CubicPage() {
       <div className="top-panel" style={topPanelStyle}>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="action-btn reset-btn" onClick={handleReset}>🔄 恢复魔方</button>
+          <button className="action-btn" onClick={handleUndo} disabled={moveCount === 0}>↩️ 撤销</button>
           <button className="action-btn" onClick={handleResetCamera}>📷 复位视角</button>
           <button className="action-btn" onClick={handleGenerateScramble}>🎲 生成WCA打乱</button>
           <button className="action-btn" onClick={handleQuickScramble}>⚡ 快速打乱</button>
@@ -476,6 +502,7 @@ export default function CubicPage() {
       <style>{`
         .action-btn { background: rgba(50,50,70,0.9); border: 1px solid rgba(255,215,0,0.5); color: #ffd966; padding: 10px 20px; border-radius: 40px; font-size: 14px; font-weight: 600; cursor: pointer; }
         .action-btn:hover { background: rgba(70,70,100,0.9); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .reset-btn { border-color: rgba(100,150,255,0.5); color: #aaccff; }
         .sticker-face { display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr); gap: 2px; width: 54px; height: 54px; padding: 3px; background: rgba(0,0,0,0.4); border-radius: 6px; }
         .sticker.u { background: #ffdc00; } .sticker.d { background: #fff; border: 1px solid #e0e0e0; }

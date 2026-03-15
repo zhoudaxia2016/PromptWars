@@ -220,6 +220,8 @@ export function getStickerState(): StickerState {
 
 export interface CreateCubeOptions {
   onRotationEnd?: () => void;
+  /** 每次执行完一步旋转时调用，用于记录操作历史（撤销等） */
+  onMoveExecuted?: (move: string) => void;
 }
 
 export interface CreateCubeResult {
@@ -234,7 +236,7 @@ export interface CreateCubeResult {
 }
 
 export function createCube(scene: THREE.Scene, options: CreateCubeOptions = {}): CreateCubeResult {
-  const { onRotationEnd } = options;
+  const { onRotationEnd, onMoveExecuted } = options;
   smallCubes.length = 0;
   initialPositions.length = 0;
   initialQuaternions.length = 0;
@@ -383,6 +385,7 @@ export function createCube(scene: THREE.Scene, options: CreateCubeOptions = {}):
 
       isAnimating = false;
       currentAnimationComplete = null;
+      onMoveExecuted?.(face);
       onRotationEnd?.();
 
       if (!skipQueue && animationQueue.length > 0) {
@@ -455,6 +458,7 @@ export function createCube(scene: THREE.Scene, options: CreateCubeOptions = {}):
     });
 
     moves.forEach((face) => {
+      onMoveExecuted?.(face);
       const params = getRotationParams(face);
       if (!params) return;
       const { axis, fixedVal, angle } = params;
