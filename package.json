@@ -2,14 +2,11 @@
   "name": "promptwars",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
-    "dev": "npm run dev -w @promptwars/web",
-    "build": "npm run build -w @promptwars/cubic && npm run build -w @promptwars/web",
-    "preview": "npm run preview -w @promptwars/web"
+    "dev": "pnpm --filter @promptwars/web dev",
+    "build": "pnpm --filter @promptwars/cubic build && pnpm --filter @promptwars/web build",
+    "preview": "pnpm --filter @promptwars/web preview"
   },
   "devDependencies": {
     "@types/deno": "^2.5.0",
