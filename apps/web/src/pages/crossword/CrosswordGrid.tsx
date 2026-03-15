@@ -1,4 +1,4 @@
-import { ROMA_TO_HIRA, type GridCell } from '@promptwars/crossword';
+import { ROMA_TO_HIRA, type GridCell } from './core';
 
 interface CrosswordGridProps {
   grid: (GridCell | null)[][];

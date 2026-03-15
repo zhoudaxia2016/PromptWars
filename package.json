@@ -5,7 +5,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "npm run dev -w @promptwars/web",
-    "build": "npm run build -w @promptwars/llm && npm run build -w @promptwars/cubic && npm run build -w @promptwars/crossword && npm run build -w @promptwars/web",
+    "build": "npm run build -w @promptwars/llm && npm run build -w @promptwars/cubic && npm run build -w @promptwars/web",
     "preview": "npm run preview -w @promptwars/web"
   },
   "devDependencies": {

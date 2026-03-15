@@ -10,8 +10,7 @@ promptwars/
 │   └── web/          # 主应用 (Vite + React + React Router)
 ├── packages/
 │   ├── llm/          # 大模型配置与调用 (callLLM)
-│   ├── cubic/        # 3D 魔方逻辑
-│   └── crossword/    # 日语填字逻辑
+│   └── cubic/        # 3D 魔方逻辑
 ├── package.json
 └── package.json
 ```
@@ -43,7 +42,7 @@ npm run build
 - 复制 AI 还原提示词
 - CFOP 公式库（OLL / PLL / F2L）
 
-### crossword · 日语填字游戏
+### crossword · 日语填字游戏（apps/web/src/pages/crossword）
 
 - 横向 / 纵向日语单词
 - 罗马音输入，平假名显示

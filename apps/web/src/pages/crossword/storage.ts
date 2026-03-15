@@ -1,4 +1,4 @@
-import type { Puzzle, PuzzleWord } from '@promptwars/crossword';
+import type { Puzzle, PuzzleWord } from './core';
 
 export const VOCAB_STORAGE_KEY = 'crossword-vocab';
 export const FAVORITES_STORAGE_KEY = 'crossword-favorites';

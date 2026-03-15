@@ -1,5 +1,5 @@
-import type { Puzzle } from '@promptwars/crossword';
-import type { GridCell } from '@promptwars/crossword';
+import type { Puzzle } from './core';
+import type { GridCell } from './core';
 
 type SetSelectedCell = (v: { r: number; c: number } | null) => void;
 type SetCurrentWord = (v: {

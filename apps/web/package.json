@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@promptwars/cubic": "*",
-    "@promptwars/crossword": "*",
     "@promptwars/llm": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

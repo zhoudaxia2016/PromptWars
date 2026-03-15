@@ -1,5 +1,5 @@
-import { placeWords } from '@promptwars/crossword';
-import type { Puzzle } from '@promptwars/crossword';
+import { placeWords } from './core';
+import type { Puzzle } from './core';
 import { getDefaultProvider, call } from '@promptwars/llm';
 import {
   VOCAB_STORAGE_KEY,

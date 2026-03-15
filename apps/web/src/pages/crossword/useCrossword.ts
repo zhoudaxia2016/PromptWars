@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import { PUZZLE, buildGrid, ROMA_TO_HIRA } from '@promptwars/crossword';
-import type { Puzzle } from '@promptwars/crossword';
+import { PUZZLE, buildGrid, ROMA_TO_HIRA } from './core';
+import type { Puzzle } from './core';
 import {
   VOCAB_STORAGE_KEY,
   loadLastPuzzle,

@@ -1,4 +1,4 @@
-import type { Puzzle } from '@promptwars/crossword';
+import type { Puzzle } from './core';
 
 interface CrosswordClueListProps {
   words: Puzzle['words'];
