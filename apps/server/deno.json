@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.ns"]
+  },
+  "tasks": {
+    "dev": "deno run --watch --allow-env --allow-net --env-file=.env main.ts",
+    "start": "deno run --allow-env --allow-net --env-file=.env main.ts"
+  }
+}
