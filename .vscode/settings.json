@@ -1,3 +1,6 @@
 {
-  "deno.enablePaths": ["apps/server"]
+  "deno.enablePaths": [
+    "apps/server"
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }
