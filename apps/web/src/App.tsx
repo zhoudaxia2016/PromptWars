@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import CubicPage from './pages/CubicPage';
-import CrosswordPage from './pages/CrosswordPage';
+import CrosswordPage from './pages/crossword';
 
 export default function App() {
   return (
