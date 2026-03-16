@@ -1,21 +1,31 @@
+import { useState, useEffect } from 'react';
 import type { Puzzle } from '../core';
+import { loadFavorites, saveFavoritesToList } from '../storage';
 import s from './index.module.less';
 
-interface FavoritesModalProps {
+interface Props {
   open: boolean;
   onClose: () => void;
-  favoritesList: Puzzle[];
   onLoad: (item: Puzzle) => void;
   onRemove: (id: string) => void;
 }
 
-export function FavoritesModal({
-  open,
-  onClose,
-  favoritesList,
-  onLoad,
-  onRemove,
-}: FavoritesModalProps) {
+export function FavoritesModal({ open, onClose, onLoad, onRemove }: Props) {
+  const [favoritesList, setFavoritesList] = useState<Puzzle[]>([]);
+
+  useEffect(() => {
+    if (open) {
+      setFavoritesList(loadFavorites());
+    }
+  }, [open]);
+
+  const handleRemove = (id: string) => {
+    const next = favoritesList.filter((f) => f.id !== id);
+    setFavoritesList(next);
+    saveFavoritesToList(next);
+    onRemove(id);
+  };
+
   if (!open) return null;
 
   return (
@@ -71,7 +81,7 @@ export function FavoritesModal({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (item.id) onRemove(item.id);
+                    if (item.id) handleRemove(item.id);
                   }}
                   className={s.btnRemove}
                 >

@@ -1,5 +1,12 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { usePuzzle } from './usePuzzle';
+import { saveLastPuzzle, formatAnswer } from './storage';
+import { useData } from './hooks/useData';
+import { useInput } from './hooks/useInput';
+import { useCheck } from './hooks/useCheck';
+import { useModals } from './hooks/useModals';
+import { useFavorites } from './hooks/useFavorites';
+import { useGenerate } from './hooks/useGenerate';
 import { Grid } from './Grid';
 import { ClueList } from './ClueList';
 import { VocabModal } from './VocabModal';
@@ -7,40 +14,41 @@ import { FavoritesModal } from './FavoritesModal';
 import s from './index.module.less';
 
 export default function Page() {
-  const {
+  const { puzzle, setPuzzle, grid, cellStartIds, across, down, last, cellWords } = useData();
+  const input = useInput({ puzzle, grid, cellWords, last });
+  const { userInput, selectedCell, currentWord, selectCell, handleKeyDown, resetInput } = input;
+  const check = useCheck({ puzzleWords: puzzle.words, userInput });
+  const { checkResult, status, checkAnswers, resetCheck } = check;
+  const modals = useModals();
+  const { vocabModalOpen, setVocabModalOpen, favoritesModalOpen, setFavoritesModalOpen } = modals;
+  const favorites = useFavorites({
     puzzle,
-    grid,
-    cellStartIds,
-    userInput,
-    selectedCell,
-    highlighted,
-    checkResult,
-    status,
-    generating,
-    generateError,
-    vocabModalOpen,
-    setVocabModalOpen,
-    favoritesModalOpen,
+    setPuzzle,
+    last,
+    resetInput,
+    resetCheck,
     setFavoritesModalOpen,
-    vocabInput,
-    setVocabInput,
-    favoritesList,
+  });
+  const {
     currentFavoriteId,
-    currentWord,
-    across,
-    down,
-    selectCell,
-    formatAnswer,
-    handleKeyDown,
-    checkAnswers,
-    saveVocab,
+    isCurrentFavorited,
     addToFavorites,
     removeFromFavorites,
     openFavoritesModal,
     loadFavorite,
-    handleGenerate,
-    isCurrentFavorited,
-  } = usePuzzle();
+    setCurrentFavoriteId,
+  } = favorites;
+  const generate = useGenerate({
+    setPuzzle,
+    resetInput,
+    resetCheck,
+    setCurrentFavoriteId,
+  });
+  const { generating, generateError, handleGenerate } = generate;
+
+  useEffect(() => {
+    saveLastPuzzle(puzzle, userInput, currentFavoriteId);
+  }, [puzzle, userInput, currentFavoriteId]);
 
   return (
     <div
@@ -76,7 +84,7 @@ export default function Page() {
             cellStartIds={cellStartIds}
             userInput={userInput}
             selectedCell={selectedCell}
-            highlighted={highlighted}
+            currentWord={currentWord}
             checkResult={checkResult}
             onSelectCell={selectCell}
           />
@@ -135,15 +143,11 @@ export default function Page() {
       <VocabModal
         open={vocabModalOpen}
         onClose={() => setVocabModalOpen(false)}
-        vocabInput={vocabInput}
-        onVocabInputChange={setVocabInput}
-        onSave={saveVocab}
       />
 
       <FavoritesModal
         open={favoritesModalOpen}
         onClose={() => setFavoritesModalOpen(false)}
-        favoritesList={favoritesList}
         onLoad={loadFavorite}
         onRemove={removeFromFavorites}
       />

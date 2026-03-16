@@ -1,7 +1,7 @@
 import type { Puzzle } from '../core';
 import s from './index.module.less';
 
-interface ClueListProps {
+interface Props {
   words: Puzzle['words'];
   title: string;
   currentWord: { word: Puzzle['words'][0]; index: number } | null;
@@ -17,7 +17,7 @@ export function ClueList({
   checkResult,
   formatAnswer,
   onSelectCell,
-}: ClueListProps) {
+}: Props) {
   return (
     <div className={s.clueList}>
       <h3 className={s.clueTitle}>{title}</h3>

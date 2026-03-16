@@ -1,13 +1,32 @@
-import { ROMA_TO_HIRA, type GridCell } from '../core';
+import { useMemo } from 'react';
+import { ROMA_TO_HIRA, type GridCell, type PuzzleWord } from '../core';
 import s from './index.module.less';
 
-interface GridProps {
+function getHighlightedCells(currentWord: { word: PuzzleWord; index: number } | null): Set<string> {
+  if (!currentWord) return new Set<string>();
+  const set = new Set<string>();
+  const ans = currentWord.word.answer.replace(/\s/g, '');
+  for (let i = 0; i < ans.length; i++) {
+    const r =
+      currentWord.word.dir === 'across'
+        ? currentWord.word.row
+        : currentWord.word.row + i;
+    const c =
+      currentWord.word.dir === 'across'
+        ? currentWord.word.col + i
+        : currentWord.word.col;
+    set.add(`${r},${c}`);
+  }
+  return set;
+}
+
+interface Props {
   grid: (GridCell | null)[][];
   puzzleSize: number;
   cellStartIds: Record<string, number[]>;
   userInput: Record<string, string>;
   selectedCell: { r: number; c: number } | null;
-  highlighted: Set<string>;
+  currentWord: { word: PuzzleWord; index: number } | null;
   checkResult: Record<string, 'correct' | 'wrong'> | null;
   onSelectCell: (r: number, c: number) => void;
 }
@@ -18,10 +37,11 @@ export function Grid({
   cellStartIds,
   userInput,
   selectedCell,
-  highlighted,
+  currentWord,
   checkResult,
   onSelectCell,
-}: GridProps) {
+}: Props) {
+  const highlighted = useMemo(() => getHighlightedCells(currentWord), [currentWord]);
   return (
     <div
       className={s.grid}
