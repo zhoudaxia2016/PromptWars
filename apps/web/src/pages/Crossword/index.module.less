@@ -66,6 +66,24 @@
   align-items: center;
   gap: 12px;
   flex: 0 0 auto;
+  position: relative;
+}
+
+.hiddenInput {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: transparent;
+  border: none;
+  outline: none;
+  caret-color: transparent;
+  font-size: 16px;
+  padding: 0;
+  margin: 0;
 }
 
 .actions {

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { saveLastPuzzle, formatAnswer } from './storage';
 import { useData } from './hooks/useData';
@@ -16,7 +16,8 @@ import s from './index.module.less';
 export default function Page() {
   const { puzzle, setPuzzle, grid, cellStartIds, across, down, last, cellWords } = useData();
   const input = useInput({ puzzle, grid, cellWords, last });
-  const { userInput, selectedCell, currentWord, selectCell, handleKeyDown, resetInput } = input;
+  const { userInput, selectedCell, currentWord, selectCell, handleInput, handleCompositionStart, handleCompositionUpdate, handleCompositionEnd, handleBackspace, resetInput } = input;
+  const inputRef = useRef<HTMLInputElement>(null);
   const check = useCheck({ puzzleWords: puzzle.words, userInput });
   const { checkResult, status, checkAnswers, resetCheck } = check;
   const modals = useModals();
@@ -50,12 +51,12 @@ export default function Page() {
     saveLastPuzzle(puzzle, userInput, currentFavoriteId);
   }, [puzzle, userInput, currentFavoriteId]);
 
+  useEffect(() => {
+    if (selectedCell) inputRef.current?.focus();
+  }, [selectedCell]);
+
   return (
-    <div
-      className={s.crossword}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
+    <div className={s.crossword} tabIndex={-1}>
       <div className={s.header}>
         <Link to="/" className={s.backLink}>
           ← 返回
@@ -87,6 +88,16 @@ export default function Page() {
             currentWord={currentWord}
             checkResult={checkResult}
             onSelectCell={selectCell}
+          />
+          <input
+            ref={inputRef}
+            className={s.hiddenInput}
+            style={{ width: puzzle.size * 36, height: puzzle.size * 36 }}
+            onInput={handleInput}
+            onCompositionStart={handleCompositionStart}
+            onCompositionUpdate={handleCompositionUpdate}
+            onCompositionEnd={handleCompositionEnd}
+            onKeyDown={handleBackspace}
           />
           <div className={s.actions}>
             <button onClick={checkAnswers} className={s.btnCheck}>

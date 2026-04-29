@@ -1,5 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
-import { ROMA_TO_HIRA } from '../core';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import type { Puzzle, GridCell } from '../core';
 import { createMoveToNext, createMoveToPrev } from '../navigation';
 import type { loadLastPuzzle } from '../storage';
@@ -20,7 +19,8 @@ export function useInput({ puzzle, grid, cellWords, last }: UseInputParams) {
   const [userInput, setUserInput] = useState<Record<string, string>>(
     () => last?.userInput ?? {}
   );
-  const [pendingRomanji, setPendingRomanji] = useState('');
+  const composingRef = useRef(false);
+  const inputFiredRef = useRef(false);
 
   const moveToNext = useMemo(
     () =>
@@ -60,74 +60,79 @@ export function useInput({ puzzle, grid, cellWords, last }: UseInputParams) {
 
       setSelectedCell({ r, c });
       setCurrentWord({ word, index: words[0].index });
-      setPendingRomanji('');
     },
     [grid, cellWords, puzzle.words]
   );
 
-  const isKanaPuzzle =
-    puzzle.words.length > 0 &&
-    /[\u3040-\u309F\u30A0-\u30FF]/.test(puzzle.words[0].answer[0]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest('textarea, input') || e.ctrlKey || e.metaKey) return;
+  const handleInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (composingRef.current) {
+        inputFiredRef.current = true;
+        return;
+      }
       if (!selectedCell) return;
       const { r, c } = selectedCell;
       const key = `${r},${c}`;
-
-      if (e.key.length === 1) {
-        if (/[\u3040-\u309F\u30A0-\u30FF]/.test(e.key)) {
-          e.preventDefault();
-          setUserInput((prev) => ({ ...prev, [key]: e.key }));
-          setPendingRomanji('');
-          moveToNext(r, c);
-          return;
-        }
-        if (!/[a-zA-Z]/.test(e.key)) return;
-        const lower = e.key.toLowerCase();
-
-        if (isKanaPuzzle) {
-          e.preventDefault();
-          const combined = (pendingRomanji + lower).toLowerCase();
-          if (ROMA_TO_HIRA[combined]) {
-            setUserInput((prev) => ({ ...prev, [key]: ROMA_TO_HIRA[combined] }));
-            setPendingRomanji('');
-            moveToNext(r, c);
-          } else if (ROMA_TO_HIRA[lower]) {
-            setUserInput((prev) => ({ ...prev, [key]: ROMA_TO_HIRA[lower] }));
-            setPendingRomanji('');
-            moveToNext(r, c);
-          } else {
-            setPendingRomanji(combined.length <= 2 ? combined : lower);
-          }
-          return;
-        }
-
-        const char = ROMA_TO_HIRA[lower] ?? lower;
-        e.preventDefault();
-        setUserInput((prev) => ({ ...prev, [key]: char }));
-        setPendingRomanji('');
+      const val = e.target.value;
+      if (val.length > 0) {
+        setUserInput((prev) => ({ ...prev, [key]: val }));
+        e.target.value = '';
         moveToNext(r, c);
-      } else if (e.key === 'Backspace') {
-        e.preventDefault();
-        if (pendingRomanji) {
-          setPendingRomanji('');
-        } else {
-          setUserInput((prev) => ({ ...prev, [key]: '' }));
-          moveToPrev(r, c);
-        }
       }
     },
-    [selectedCell, isKanaPuzzle, pendingRomanji, moveToNext, moveToPrev]
+    [selectedCell, moveToNext]
+  );
+
+  const handleCompositionStart = useCallback(() => {
+    composingRef.current = true;
+    inputFiredRef.current = false;
+  }, []);
+
+  const handleCompositionUpdate = useCallback(
+    (e: React.CompositionEvent<HTMLInputElement>) => {
+      if (!selectedCell) return;
+      const { r, c } = selectedCell;
+      const key = `${r},${c}`;
+      setUserInput((prev) => ({ ...prev, [key]: e.data }));
+    },
+    [selectedCell]
+  );
+
+  const handleCompositionEnd = useCallback(
+    (e: React.CompositionEvent<HTMLInputElement>) => {
+      composingRef.current = false;
+      if (!selectedCell) return;
+      const { r, c } = selectedCell;
+      const key = `${r},${c}`;
+      const composed = e.data;
+      if (composed.length > 0) {
+        setUserInput((prev) => ({ ...prev, [key]: composed }));
+        if (!inputFiredRef.current) {
+          moveToNext(r, c);
+        }
+      }
+      inputFiredRef.current = false;
+    },
+    [selectedCell, moveToNext]
+  );
+
+  const handleBackspace = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Backspace' && !composingRef.current) {
+        if (!selectedCell) return;
+        const { r, c } = selectedCell;
+        const key = `${r},${c}`;
+        setUserInput((prev) => ({ ...prev, [key]: '' }));
+        moveToPrev(r, c);
+      }
+    },
+    [selectedCell, moveToPrev]
   );
 
   const resetInput = useCallback(() => {
     setUserInput({});
     setSelectedCell(null);
     setCurrentWord(null);
-    setPendingRomanji('');
   }, []);
 
   return {
@@ -136,7 +141,11 @@ export function useInput({ puzzle, grid, cellWords, last }: UseInputParams) {
     selectedCell,
     currentWord,
     selectCell,
-    handleKeyDown,
+    handleInput,
+    handleCompositionStart,
+    handleCompositionUpdate,
+    handleCompositionEnd,
+    handleBackspace,
     resetInput,
   };
 }
